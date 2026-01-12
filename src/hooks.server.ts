@@ -12,7 +12,6 @@ export async function handle({ event, resolve }) {
     const session = await validateSessionToken(sessionToken);
     if (session?.user.emailVerified) {
       const newJwt = await createSessionJwt(session);
-      console.log("JWT expired, refresh: ", newJwt);
       event.cookies.set("session_jwt", newJwt, { path: '/', httpOnly: true, maxAge: jwtExpirationSeconds, secure: true, sameSite: 'lax' })
     }
     event.locals.session = session;
@@ -24,7 +23,7 @@ export async function handle({ event, resolve }) {
 export function handleError({ error }) {
   // example integration with https://sentry.io/
   // Sentry.captureException(error, { extra: { event } });
-  console.log(error);
+  console.error(error);
   return {
     message: "Oops, Something went wrong"
   };

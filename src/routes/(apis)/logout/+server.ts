@@ -7,8 +7,6 @@ export async function GET({ url, cookies, locals }) {
     cookies.delete("session_token", { path: '/', httpOnly: true, maxAge: maxSessionSeconds, secure: true, sameSite: 'lax' });
     locals.session = null;
   }
-  // return new Response();
-  console.log(url);
   if (url.searchParams.has('continue')) {
     redirect(303, url.searchParams.get('continue')!);
   }
