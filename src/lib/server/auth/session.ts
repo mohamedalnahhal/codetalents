@@ -1,43 +1,13 @@
-import { eq, or } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { sessions, users } from "../db/schema";
+import { sessions } from "../db/schema";
 import { constantTimeEqual, generateSecureRandomString, hashSecret } from "./crypto";
-import * as argon2 from "argon2";
-import { EMAIL_NOT_VERIFIED_EXPIRE_ERROR } from "../text-maps/errors";
-
-const maxEmailNotVerified = 60 * 60 * 24; // 1 day
+import type { ValidatedUser } from "./users";
 
 const sessionExpiresInSeconds = 60 * 60 * 24; // 1 day
 const activityCheckIntervalSeconds = 60 * 60; // 1 hour
 const inactivityTimeoutSeconds = 60 * 60 * 24 * 10; // 10 days
 export const maxSessionSeconds = 60 * 60 * 24 * 30; // 30 days
-
-export async function validateUser(username: string, passowrd: string): Promise<ValidatedUser | { error: string } |null> {
-	const now = new Date();
-
-	const results = await db.select({
-		id: users.id,
-		passwordHash: users.passwordHash,
-		role: users.role,
-		emailVerified: users.emailVerified,
-		registeredAt: users.registeredAt
-	}).from(users)
-		.where(or(eq(users.username, username), eq(users.email, username)));
-	const user = results[0];
-
-	if (!user || !user.passwordHash) return null;
-	if (now.getTime() - user.registeredAt.getTime() >= maxEmailNotVerified * 1000) {
-		return { error: EMAIL_NOT_VERIFIED_EXPIRE_ERROR }
-	}
-
-	if (await argon2.verify(user.passwordHash, passowrd))
-		return {
-			id: user.id,
-			role: user.role,
-			emailVerified: user.emailVerified
-		};
-	else return null;
-}
 
 export async function createSession(user: ValidatedUser): Promise<SessionWithToken> {
 	const now = new Date();
@@ -139,11 +109,4 @@ export async function deleteSession(sessionId: string) {
 
 export interface SessionWithToken extends App.Session {
 	token: string;
-}
-
-export interface ValidatedUser {
-	id: string,
-	role: App.UserRole,
-	emailVerified: boolean,
-	error?: undefined
 }
