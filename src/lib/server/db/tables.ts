@@ -33,7 +33,6 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 100 }).unique().notNull(),
   passwordHash: text("password_hash"),
   role: userRole("role").default("user").notNull(),
-  dob: timestamp("dob").notNull(),
   rating: integer("rating").default(0).notNull(),
   theme: uiTheme("theme").default("sys").notNull(),
   generalSettings: jsonb("general_settings"),
