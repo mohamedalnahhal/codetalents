@@ -1,5 +1,6 @@
 import { createSessionJwt, jwtExpirationSeconds } from '$lib/server/auth/jwt';
-import { createSession, maxSessionSeconds, validateUser } from '$lib/server/auth/session.js';
+import { createSession, maxSessionSeconds } from '$lib/server/auth/session.js';
+import { validateUser } from '$lib/server/auth/users';
 import { MISSING_CREDS_ERROR, WRONG_CREDS_ERROR } from '$lib/server/text-maps/errors.js';
 import { fail, redirect } from '@sveltejs/kit';
 
